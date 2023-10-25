@@ -1,0 +1,134 @@
+version: "3"
+services:
+  database:
+    container_name: "${INFRA}-database"
+    image: postgres:15.2
+    env_file:
+      - .env
+    volumes:
+      - ./persistent/database:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  nginx:
+    container_name: "${INFRA}-nginx"
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+      args:
+        - HOST_GID=${HOST_GID}
+        - HOST_UID=${HOST_UID}
+        - CONTAINER_USER=${CONTAINER_USER}
+    depends_on:
+      - venagian
+    volumes:
+      - ../../source/venagian/staticfiles:/static
+    restart: unless-stopped
+    ports:
+      - 80:80
+    env_file:
+      - .env
+
+  rabbitmq:
+    container_name: "${INFRA}-rabbitmq"
+    image: rabbitmq:3.11
+    volumes:
+      - ./persistent/rabbitmq:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  memcached:
+    container_name: "${INFRA}-memcached"
+    image: memcached:latest
+    restart: unless-stopped
+
+  venagian:
+    container_name: "${INFRA}-venagian"
+    build:
+      context: ./
+      dockerfile: ./venagian/Dockerfile
+      args:
+        - HOST_GID=${HOST_GID}
+        - HOST_UID=${HOST_UID}
+        - CONTAINER_USER=${CONTAINER_USER}
+        - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+        - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+        - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+        - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+        - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+        - DJANGO_DEBUG=${DJANGO_DEBUG}
+        - DJANGO_MEDIA_DIR=${DJANGO_MEDIA_DIR}
+    working_dir: /venagian/venagian
+    volumes:
+      - ../../source:/venagian
+      - ./persistent/media:/media
+    depends_on:
+      - database
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  celeryworker:
+    container_name: "${INFRA}-celeryworker"
+    build:
+      context: ./
+      dockerfile: ./celery_worker/Dockerfile
+      args:
+        - HOST_GID=${HOST_GID}
+        - HOST_UID=${HOST_UID}
+        - CONTAINER_USER=${CONTAINER_USER}
+        - DJANGO_MEDIA_DIR=${DJANGO_MEDIA_DIR}
+    working_dir: /venagian
+    volumes:
+      - ../../source:/venagian
+      - ./persistent/media:/media
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  celerybeat:
+    container_name: "${INFRA}-celerybeat"
+    build:
+      context: ./
+      dockerfile: ./celery_beat/Dockerfile
+      args:
+        - HOST_GID=${HOST_GID}
+        - HOST_UID=${HOST_UID}
+        - CONTAINER_USER=${CONTAINER_USER}
+        - DJANGO_MEDIA_DIR=${DJANGO_MEDIA_DIR}
+    working_dir: /venagian
+    volumes:
+      - ../../source:/venagian
+      - ./persistent/media:/media
+    depends_on:
+      - celeryworker
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  celeryflower:
+    container_name: "${INFRA}-celeryflower"
+    image: mher/flower:1.2
+    command: celery flower --url_prefix=flower --broker_api=${CELERY_BROKER_URL} --basic_auth=${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+    env_file:
+      - .env
+
+  grafana:
+    container_name: "${INFRA}-grafana"
+    build:
+      context: ./
+      dockerfile: ./grafana/Dockerfile
+    volumes:
+      # Check https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/
+      - ./persistent/grafana/data:/var/lib/grafana
+      - ./persistent/grafana/provisioning:/etc/grafana/provisioning
+    user: ${HOST_UID}:${HOST_GID}
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - 3000
+
