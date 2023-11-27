@@ -105,22 +105,6 @@ DJANGO_CSRF_TRUSTED_ORIGINS=https://venagian.com:8080
 make build ENV=prod
 ```
 
-7. Now you need to configure Google auth
-
-8. Configure a [Google Project](https://www.rootstrap.com/blog/how-to-integrate-google-login-in-your-django-rest-api-using-the-dj-rest-auth-library)
-
-9. In /admin/sites/site/ add the site
-
-10. In /admin/socialaccount/socialapp/ add a new social application
-
-11. In api.view.auth.GoogleLoginView adjust the callback URL
-
-```
-Provider: Google
-Name: Main
-Client ID: The client id
-Secret key: The secret key
-Sites: Move the corresponting site to the right
 ```
 
 **Note:** The `media` path should be changed, this is the directory where all the files will be uploaded. So go into the docker-compose.yml and change the lines (should be 3 lines) that contain `- ./persistent/media:/media` and change the `./persistent/media` with the desired path, note that the folder must be created by the user you will use inside the container. **DO NOT** change the part after the colon, as that is the internal path in the django container.

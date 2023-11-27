@@ -14,8 +14,58 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path, re_path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from django.conf import settings
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Venagian API",
+        default_version='v1',
+        description="This is a first test API for Venagian.",
+        contact=openapi.Contact(email="janborrasros@gmail.com"),
+        license=openapi.License(name="GNU General Public License v3.0"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls, namespace='djdt')),
+        path('admin/', admin.site.urls),
+    ]
+else:
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+    ]
+
+# Login
+urlpatterns += [
+    path("api/accounts/", include("allauth.urls")),
+]
+
+urlpatterns += [
+    re_path(
+        r"^api/swagger(?P<format>\.json|\.yaml)$",
+        schema_view.without_ui(cache_timeout=0),
+        name="schema-json",
+    ),
+    re_path(
+        r"^api/swagger/$",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    re_path(
+        r"^api/redoc/$",
+        schema_view.with_ui("redoc", cache_timeout=0),
+        name="schema-redoc",
+    ),
+]
+
+urlpatterns += [
+    path("api/", include("api.urls")),
 ]

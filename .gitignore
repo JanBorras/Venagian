@@ -1,1 +1,3 @@
 docker/dev/persistent/
+source/venagian/django.log
+source/venagian/staticfiles

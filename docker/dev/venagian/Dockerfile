@@ -24,3 +24,5 @@ USER $CONTAINER_USER
 COPY ./venagian/entrypoint.sh /tmp/entrypoint.sh
 
 CMD ["/bin/bash", "/tmp/entrypoint.sh"]
+
+

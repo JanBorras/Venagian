@@ -1,5 +1,5 @@
 # Perform django operations
-python manage.py makemigrations webapp
+python manage.py makemigrations venagian
 python manage.py migrate
 python manage.py collectstatic --noinput
 # Will look in the fixtures directory for a file called test-data.json

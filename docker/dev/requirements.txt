@@ -29,6 +29,7 @@ paramiko==2.6.0
 prompt-toolkit==3.0.38
 psycopg2==2.9.5
 Pygments==2.14.0
+python-logstash==0.4.8
 Pillow==9.0.1
 python-gettext==4.1
 python-memcached==1.59
