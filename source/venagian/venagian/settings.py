@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [
@@ -145,6 +146,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# User management
+AUTH_USER_MODEL = "api.User"
+
+# Login
+LOGIN_URL = "/admin/login/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -209,3 +215,13 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+# CACHE
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "memcached:11211",
+    }
+}
+CACHE_BACKENDS = ["django.core.cache.backends.memcached.PyMemcacheCache"]
+CELERY_RESULT_BACKEND = "cache+memcached://memcached:11211/"

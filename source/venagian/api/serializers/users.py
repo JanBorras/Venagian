@@ -28,4 +28,6 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "password",
             "created_at",
+            "phone",
+            "language",
         ]

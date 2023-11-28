@@ -8,6 +8,8 @@ services:
     volumes:
       - ./persistent/database:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - local
 
   nginx:
     container_name: "${INFRA}-nginx"
@@ -27,6 +29,8 @@ services:
       - 80:80
     env_file:
       - .env
+    networks:
+      - local
 
   rabbitmq:
     container_name: "${INFRA}-rabbitmq"
@@ -34,11 +38,15 @@ services:
     volumes:
       - ./persistent/rabbitmq:/var/lib/rabbitmq
     restart: unless-stopped
+    networks:
+      - local
 
   memcached:
     container_name: "${INFRA}-memcached"
     image: memcached:latest
     restart: unless-stopped
+    networks:
+      - local
 
   venagian:
     container_name: "${INFRA}-venagian"
@@ -65,6 +73,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    networks:
+      - local
 
   celeryworker:
     container_name: "${INFRA}-celeryworker"
@@ -85,6 +95,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    networks:
+      - local
 
   celerybeat:
     container_name: "${INFRA}-celerybeat"
@@ -105,6 +117,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    networks:
+      - local
 
   celeryflower:
     container_name: "${INFRA}-celeryflower"
@@ -115,6 +129,8 @@ services:
       - rabbitmq
     env_file:
       - .env
+    networks:
+      - local
 
   grafana:
     container_name: "${INFRA}-grafana"
@@ -131,4 +147,29 @@ services:
       - .env
     expose:
       - 3000
+    networks:
+      - local
 
+  frontend:
+    container_name: "${INFRA}-frontend"
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - ../../frontend:/usr/src/frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - local
+    working_dir: /usr/src/frontend
+    depends_on:
+      - venagian
+    ports:
+      - 3001:3001
+    command: ["npm", "start"]
+
+
+networks:
+  local:
+    driver: bridge
