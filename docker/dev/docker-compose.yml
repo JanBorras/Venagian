@@ -167,7 +167,6 @@ services:
       - venagian
     ports:
       - 3001:3001
-    command: ["npm", "start"]
 
 
 networks:

@@ -1,5 +1,7 @@
 # Django Test webapp from Jan Borràs Ros
 
+# IMPORTANT: This web app is uncomplete, it can have several errors. Some day I will have enough time to finish this sample code. Right now it can show some basic principles about API design using REST framework, and its interaction with a REACT frontend.
+
 ## Installing
 
 ### Docker and docker compose

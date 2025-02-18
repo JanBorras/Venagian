@@ -9,16 +9,6 @@ from rest_framework import serializers
 logger = logging.getLogger("django")
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data["email"],
-            password=validated_data["password"],
-        )
-
-        return user
-
     class Meta:
         model = User
         fields = [
@@ -31,3 +21,13 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "language",
         ]
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username']
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user

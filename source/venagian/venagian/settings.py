@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'debug_toolbar',
+    # 'debug_toolbar',
     'drf_yasg',
     'api',
     'dj_rest_auth',
@@ -50,9 +50,11 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,7 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+
 ]
 
 ROOT_URLCONF = 'venagian.urls'
@@ -81,37 +84,39 @@ TEMPLATES = [
     },
 ]
 
+SITE_ID = 1
+
 WSGI_APPLICATION = 'venagian.wsgi.application'
 
-# This is for django debug toolbar
-INTERNAL_IPS = []
-if DEBUG:
-    import socket  # only if you haven't already imported this
+# # This is for django debug toolbar
+# INTERNAL_IPS = []
+# if DEBUG:
+#     import socket  # only if you haven't already imported this
 
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
-        "127.0.0.1",
-        "10.0.2.2",
-    ]
+#     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+#     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+#         "127.0.0.1",
+#         "10.0.2.2",
+#     ]
 
-    DEBUG_TOOLBAR_CONFIG = {
-        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-    }
+#     DEBUG_TOOLBAR_CONFIG = {
+#         "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+#     }
     
-DEBUG_TOOLBAR_PANELS = [
-    'debug_toolbar.panels.versions.VersionsPanel',
-    'debug_toolbar.panels.timer.TimerPanel',
-    'debug_toolbar.panels.settings.SettingsPanel',
-    'debug_toolbar.panels.headers.HeadersPanel',
-    'debug_toolbar.panels.request.RequestPanel',
-    'debug_toolbar.panels.sql.SQLPanel',
-    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-    'debug_toolbar.panels.templates.TemplatesPanel',
-    'debug_toolbar.panels.cache.CachePanel',
-    'debug_toolbar.panels.signals.SignalsPanel',
-    'debug_toolbar.panels.logging.LoggingPanel',
-    'debug_toolbar.panels.redirects.RedirectsPanel',
-]
+# DEBUG_TOOLBAR_PANELS = [
+#     'debug_toolbar.panels.versions.VersionsPanel',
+#     'debug_toolbar.panels.timer.TimerPanel',
+#     'debug_toolbar.panels.settings.SettingsPanel',
+#     'debug_toolbar.panels.headers.HeadersPanel',
+#     'debug_toolbar.panels.request.RequestPanel',
+#     'debug_toolbar.panels.sql.SQLPanel',
+#     'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+#     'debug_toolbar.panels.templates.TemplatesPanel',
+#     'debug_toolbar.panels.cache.CachePanel',
+#     'debug_toolbar.panels.signals.SignalsPanel',
+#     'debug_toolbar.panels.logging.LoggingPanel',
+#     'debug_toolbar.panels.redirects.RedirectsPanel',
+# ]
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -150,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "api.User"
 
 # Login
-LOGIN_URL = "/admin/login/"
+LOGIN_URL = "/api/auth/login/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -205,8 +210,8 @@ REST_FRAMEWORK = {
 }
 
 SWAGGER_SETTINGS = {
-    "LOGIN_URL": "/api/accounts/login/",
-    "LOGOUT_URL": "/api/accounts/logout/",
+    "LOGIN_URL": "/api/admin",
+    "LOGOUT_URL": "/api/admin/logout/",
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -225,3 +230,13 @@ CACHES = {
 }
 CACHE_BACKENDS = ["django.core.cache.backends.memcached.PyMemcacheCache"]
 CELERY_RESULT_BACKEND = "cache+memcached://memcached:11211/"
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3001/"
+    # Add other allowed origins as needed
+]
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3001']
+
+CORS_ALLOW_CREDENTIALS = True

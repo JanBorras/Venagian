@@ -35,8 +35,8 @@ schema_view = get_schema_view(
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls, namespace='djdt')),
-        path('admin/', admin.site.urls),
+        # path('__debug__/', include(debug_toolbar.urls, namespace='djdt')),
+        path('api/admin/', admin.site.urls),
     ]
 else:
     urlpatterns = [
@@ -45,7 +45,9 @@ else:
 
 # Login
 urlpatterns += [
-    path("api/accounts/", include("allauth.urls")),
+    # path("api/accounts/", include("allauth.urls")),
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls'))
 ]
 
 urlpatterns += [
